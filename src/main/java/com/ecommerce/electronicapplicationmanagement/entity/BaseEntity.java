@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
@@ -39,4 +40,7 @@ public class BaseEntity implements Serializable {
     @Version
     @Column(name = "version", nullable = false)
     private Long version;
+
+    @Column(nullable = false)
+    private Short logicalDeleteFlag;
 }
