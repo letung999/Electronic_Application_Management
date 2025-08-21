@@ -10,9 +10,11 @@ import java.util.Map;
 @Setter
 @Getter
 @Builder
-public class ErrorInvalidArgumentResponse {
+public class ErrorResponse {
     private LocalDateTime localDateTime;
     private String path;
     private String status;
+    private String message;
+    private String statusCode;
     private Map<String, String> error;
 }
