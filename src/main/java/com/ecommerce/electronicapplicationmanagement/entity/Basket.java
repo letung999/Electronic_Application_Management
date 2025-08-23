@@ -18,10 +18,9 @@ public class Basket extends BaseEntity{
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "customer_id")
+    @Column(name = "customer_id", unique = true)
     private Long customerId;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "basket_id")
+    @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BasketItem> items = new ArrayList<>();
 }

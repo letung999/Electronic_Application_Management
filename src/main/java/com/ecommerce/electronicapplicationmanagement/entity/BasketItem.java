@@ -7,16 +7,27 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class BasketItem extends BaseEntity{
+@Table(
+        name = "basket_item",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"basket_id", "product_id"})
+        }
+)
+public class BasketItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(name = "quantity")
+    @ManyToOne
+    @JoinColumn(name = "basket_id", nullable = false)
+    private Basket basket;
+
+    @Column(name = "quantity", nullable = false)
     private int quantity;
 }
+
