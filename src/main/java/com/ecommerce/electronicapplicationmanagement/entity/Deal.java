@@ -1,10 +1,10 @@
 package com.ecommerce.electronicapplicationmanagement.entity;
 
-import com.ecommerce.electronicapplicationmanagement.constant.DealType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,14 +16,16 @@ public class Deal extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "deal_type")
-    private DealType dealType;
+    private String dealType;
 
     @Column(name = "expiration")
     private LocalDateTime expiration;
+
+    @Column(name = "discount_value")
+    private BigDecimal discountValue;
 }

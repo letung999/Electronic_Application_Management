@@ -28,8 +28,8 @@ public class Product extends BaseEntity {
     private BigDecimal price;
 
     @Column(name = "stock")
-    private int stock;
+    private Integer stock;
 
     @Column(name = "available")
-    private boolean available;
+    private Boolean available;
 }
