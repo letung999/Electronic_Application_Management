@@ -1,6 +1,7 @@
 package com.ecommerce.electronicapplicationmanagement.exception;
 
 import com.ecommerce.electronicapplicationmanagement.response.ErrorResponse;
+import org.hibernate.StaleObjectStateException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -61,7 +62,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ConflictDataException.class)
+    @ExceptionHandler({ConflictDataException.class, StaleObjectStateException.class})
     public ResponseEntity<ErrorResponse> handleConflictDataException(ConflictDataException ex,
                                                                      WebRequest webRequest) {
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -72,5 +73,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DateTimeInValidException.class)
+    public ResponseEntity<ErrorResponse> handleDateTimeInvalidException(DateTimeInValidException ex,
+                                                                        WebRequest webRequest) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .localDateTime(LocalDateTime.now())
+                .path(webRequest.getDescription(false))
+                .message(ex.getMessage())
+                .statusCode(HttpStatusCode.valueOf(400).toString())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }
