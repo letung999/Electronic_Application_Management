@@ -39,6 +39,11 @@
     * Products have limited stock.
     * When a customer adds a product to the basket, decrement stock accordingly.
     * If stock is insufficient, the operation should fail gracefully.
+      <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/letung999/PPN/1d47a54690ac1c072e17632e50853f49237093eb/images/Screenshot%202025-08-24%20at%2023.27.32.png">
+          <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/letung999/PPN/1d47a54690ac1c072e17632e50853f49237093eb/images/Screenshot%202025-08-24%20at%2023.27.32.png">
+          <img alt="The follow of system" src="https://raw.githubusercontent.com/letung999/PPN/1d47a54690ac1c072e17632e50853f49237093eb/images/Screenshot%202025-08-24%20at%2023.27.32.png">
+      </picture>
 
 # To run Application
 

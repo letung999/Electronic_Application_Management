@@ -109,13 +109,4 @@ public class AdminController extends BaseController {
         var result = productService.addDealForProduct(request);
         return responseStatusCreated(DealConverter.INSTANCE.fromDealDto(result));
     }
-
-
-    @PutMapping("/product/{id}")
-    public ResponseEntity<Response> updateProduct(
-            @PathVariable Long id,
-            @RequestBody AddProductRequest request) {
-        Product product = productService.updateProduct(id, request);
-        return responseStatusOK(product);
-    }
 }

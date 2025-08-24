@@ -197,9 +197,4 @@ public class BasketServiceImpl implements BasketService {
                 .multiply(BigDecimal.valueOf(quantity))
                 .subtract(totalDiscountOfProduct);
     }
-
-    @Override
-    public Basket getOrCreateBasket(Long customerId) {
-        return null;
-    }
 }

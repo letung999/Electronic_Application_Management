@@ -12,12 +12,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductService {
-
     Product initProduct(AddProductRequest addProductRequest);
+
     Product removeProductById(Long id, Long version);
+
     List<ProductDto> listFiltered(SearchProductRequest searchProductRequest, Pageable pageable);
+
     Optional<Product> findById(Long id);
+
     Product updateStock(Product product, int delta);
-    Product updateProduct(Long id, AddProductRequest addProductRequest);
+
     List<Deal> addDealForProduct(List<AddDealRequest> addDealRequest);
 }

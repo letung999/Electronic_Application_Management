@@ -23,15 +23,9 @@ public interface BasketService {
     Basket removeFromBasket(RemoveProductFromBasket request);
 
     /**
-     * @param customerId
-     * @return
+     * @param customerId customerId
+     * @return the information of receipt contains sub-amount
+     * , item information, total amount after apply discount
      */
     ReceiptDto calculateReceipt(Long customerId);
-
-    /**
-     * @param customerId
-     * @return
-     */
-
-    Basket getOrCreateBasket(Long customerId);
 }

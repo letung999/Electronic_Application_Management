@@ -126,23 +126,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Recover
     public Product recover(org.springframework.orm.ObjectOptimisticLockingFailureException e,
-                              Product product, int delta) {
+                           Product product, int delta) {
         log.error("Recover triggered for ObjectOptimisticLockingFailureException. Product IDs: {}, Message: {}",
                 product.getName(), e.getMessage());
         throw new ConflictDataException();
-    }
-
-    @Override
-    public Product updateProduct(Long id, AddProductRequest addProductRequest) {
-        Optional<Product> productOptional = productRepository.findById(id);
-        if (productOptional.isPresent()) {
-            Product product = productOptional.get();
-            product.setName(addProductRequest.getName());
-            product.setPrice(addProductRequest.getPrice());
-            product.setCategory(addProductRequest.getCategory());
-            return productRepository.save(product);
-        }
-        return new Product();
     }
 
     /**
