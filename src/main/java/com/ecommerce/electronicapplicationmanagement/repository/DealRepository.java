@@ -14,10 +14,10 @@ import java.util.List;
 @Repository
 public interface DealRepository extends JpaRepository<Deal, Long> {
     @Query("SELECT d FROM Deal d " +
-            "WHERE d.product = :product " +
+            "WHERE d.product.id IN (:productIds) " +
             "AND d.expiration > :now " +
             "AND d.logicalDeleteFlag = 0")
-    List<Deal> findByProductAndExpirationAfter(@Param("product") Product product,
+    List<Deal> findByProductAndExpirationAfter(@Param("productIds") List<Long> productIds,
                                                @Param("now") LocalDateTime now);
 
     @Query("SELECT d FROM Deal d " +

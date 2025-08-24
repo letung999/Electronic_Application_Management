@@ -10,6 +10,11 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"deal_type", "product_id"})
+        }
+)
 public class Deal extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

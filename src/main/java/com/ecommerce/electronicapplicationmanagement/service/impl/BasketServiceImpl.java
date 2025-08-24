@@ -2,14 +2,17 @@ package com.ecommerce.electronicapplicationmanagement.service.impl;
 
 import com.ecommerce.electronicapplicationmanagement.converter.BasketConverter;
 import com.ecommerce.electronicapplicationmanagement.converter.BasketItemConverter;
+import com.ecommerce.electronicapplicationmanagement.dto.BasketItemDto;
 import com.ecommerce.electronicapplicationmanagement.dto.ReceiptDto;
 import com.ecommerce.electronicapplicationmanagement.entity.Basket;
 import com.ecommerce.electronicapplicationmanagement.entity.BasketItem;
+import com.ecommerce.electronicapplicationmanagement.entity.Deal;
 import com.ecommerce.electronicapplicationmanagement.entity.Product;
 import com.ecommerce.electronicapplicationmanagement.exception.InsufficientStockException;
 import com.ecommerce.electronicapplicationmanagement.exception.ResourcesNotFoundException;
 import com.ecommerce.electronicapplicationmanagement.repository.BasketItemRepository;
 import com.ecommerce.electronicapplicationmanagement.repository.BasketRepository;
+import com.ecommerce.electronicapplicationmanagement.repository.DealRepository;
 import com.ecommerce.electronicapplicationmanagement.repository.ProductRepository;
 import com.ecommerce.electronicapplicationmanagement.request.AddBasketRequest;
 import com.ecommerce.electronicapplicationmanagement.request.BaseRequest;
@@ -21,6 +24,14 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -29,6 +40,7 @@ public class BasketServiceImpl implements BasketService {
     private final BasketRepository basketRepository;
     private final BasketItemRepository basketItemRepository;
     private final ProductRepository productRepository;
+    private final DealRepository dealRepository;
 
     @Transactional
     @Override
@@ -127,7 +139,63 @@ public class BasketServiceImpl implements BasketService {
 
     @Override
     public ReceiptDto calculateReceipt(Long customerId) {
-        return null;
+        // Find active basket
+        log.info("get basket for customer ID: {}", customerId);
+        Basket basket = basketRepository.findByCustomerId(customerId)
+                .orElseThrow(() ->
+                        new ResourcesNotFoundException("Basket isn't found for customer ID: " + customerId));
+
+        List<BasketItem> basketItemList = basket.getItems();
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        List<BasketItemDto> basketItemDtoList = new ArrayList<>();
+
+        if (!basketItemList.isEmpty()) {
+            // find deals for productIds
+            var productIds = basketItemList.stream().map(x -> x.getProduct().getId()).toList();
+            List<Deal> deals = dealRepository.findByProductAndExpirationAfter(productIds, LocalDateTime.now());
+            Map<Long, BigDecimal> discountMap = new HashMap<>();
+
+            if (!deals.isEmpty()) {
+                discountMap = deals.stream()
+                        .collect(Collectors.toMap(
+                                deal -> deal.getProduct().getId(),
+                                Deal::getDiscountValue));
+            }
+            for (BasketItem basketItem : basketItemList) {
+                BasketItemDto basketItemDto = new BasketItemDto();
+                BigDecimal itemPrice = calculateProductInBasket(basketItem.getProduct(), basketItem.getQuantity(), discountMap);
+                totalPrice = totalPrice.add(itemPrice);
+
+                basketItemDto.setProductId(basketItem.getProduct().getId());
+                basketItemDto.setQuantity(basketItemDto.getQuantity());
+                basketItemDto.setSubtotal(itemPrice);
+                basketItemDtoList.add(basketItemDto);
+            }
+        }
+        return ReceiptDto.builder()
+                .total(totalPrice)
+                .items(basketItemDtoList)
+                .build();
+    }
+
+    /**
+     * calculateProductInBasket
+     * @param product product
+     * @param quantity quantity
+     * @param discountMap map of productId pair discount value
+     * @return total of product after apply the discount
+     */
+    private BigDecimal calculateProductInBasket(Product product, Integer quantity, Map<Long, BigDecimal> discountMap) {
+        BigDecimal totalDiscountOfProduct = BigDecimal.ZERO;
+        if (!discountMap.isEmpty()) {
+            totalDiscountOfProduct = discountMap.entrySet().stream()
+                    .filter(x -> x.getKey().equals(product.getId()))
+                    .map(Map.Entry::getValue)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        return product.getPrice()
+                .multiply(BigDecimal.valueOf(quantity))
+                .subtract(totalDiscountOfProduct);
     }
 
     @Override
