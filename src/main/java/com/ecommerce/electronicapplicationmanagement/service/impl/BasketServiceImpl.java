@@ -5,25 +5,19 @@ import com.ecommerce.electronicapplicationmanagement.converter.BasketItemConvert
 import com.ecommerce.electronicapplicationmanagement.dto.ReceiptDto;
 import com.ecommerce.electronicapplicationmanagement.entity.Basket;
 import com.ecommerce.electronicapplicationmanagement.entity.BasketItem;
-import com.ecommerce.electronicapplicationmanagement.entity.Deal;
 import com.ecommerce.electronicapplicationmanagement.entity.Product;
-import com.ecommerce.electronicapplicationmanagement.exception.ConflictDataException;
 import com.ecommerce.electronicapplicationmanagement.exception.InsufficientStockException;
 import com.ecommerce.electronicapplicationmanagement.exception.ResourcesNotFoundException;
 import com.ecommerce.electronicapplicationmanagement.repository.BasketItemRepository;
 import com.ecommerce.electronicapplicationmanagement.repository.BasketRepository;
 import com.ecommerce.electronicapplicationmanagement.repository.ProductRepository;
 import com.ecommerce.electronicapplicationmanagement.request.AddBasketRequest;
-import com.ecommerce.electronicapplicationmanagement.request.AddDealRequest;
 import com.ecommerce.electronicapplicationmanagement.request.BaseRequest;
 import com.ecommerce.electronicapplicationmanagement.service.BasketService;
 import com.ecommerce.electronicapplicationmanagement.service.ProductService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.annotation.Recover;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @AllArgsConstructor
