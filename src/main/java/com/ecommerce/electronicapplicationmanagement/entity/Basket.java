@@ -9,10 +9,14 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Basket extends BaseEntity{
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"customer_id"})
+        }
+)
+public class Basket extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
