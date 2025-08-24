@@ -3,10 +3,11 @@ package com.ecommerce.electronicapplicationmanagement.service;
 import com.ecommerce.electronicapplicationmanagement.dto.ReceiptDto;
 import com.ecommerce.electronicapplicationmanagement.entity.Basket;
 import com.ecommerce.electronicapplicationmanagement.request.AddBasketRequest;
+import com.ecommerce.electronicapplicationmanagement.request.RemoveProductFromBasket;
 
 public interface BasketService {
     /**
-     * add to basket funtion
+     * add to basket function
      *
      * @param request add basket request
      * @return the basket just have added
@@ -14,11 +15,12 @@ public interface BasketService {
     Basket addToBasket(AddBasketRequest request);
 
     /**
-     * @param customerId
-     * @param productId
-     * @param quantity
+     * remove from basket
+     *
+     * @param request remove product from basket request
+     * @return the basket just have removed
      */
-    void removeFromBasket(Long customerId, Long productId, int quantity);
+    Basket removeFromBasket(RemoveProductFromBasket request);
 
     /**
      * @param customerId

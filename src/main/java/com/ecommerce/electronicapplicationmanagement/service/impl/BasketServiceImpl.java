@@ -13,8 +13,10 @@ import com.ecommerce.electronicapplicationmanagement.repository.BasketRepository
 import com.ecommerce.electronicapplicationmanagement.repository.ProductRepository;
 import com.ecommerce.electronicapplicationmanagement.request.AddBasketRequest;
 import com.ecommerce.electronicapplicationmanagement.request.BaseRequest;
+import com.ecommerce.electronicapplicationmanagement.request.RemoveProductFromBasket;
 import com.ecommerce.electronicapplicationmanagement.service.BasketService;
 import com.ecommerce.electronicapplicationmanagement.service.ProductService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class BasketServiceImpl implements BasketService {
     private final BasketItemRepository basketItemRepository;
     private final ProductRepository productRepository;
 
+    @Transactional
     @Override
     public Basket addToBasket(AddBasketRequest request) {
         log.info("Adding product ID: {} with quantity: {} to basket for customer ID: {}",
@@ -80,11 +83,46 @@ public class BasketServiceImpl implements BasketService {
     }
 
 
-
-
+    @Transactional
     @Override
-    public void removeFromBasket(Long customerId, Long productId, int quantity) {
+    public Basket removeFromBasket(RemoveProductFromBasket request) {
+        log.info("Removing product ID: {} from basket for customer ID: {}, quantity: {}",
+                request.getProductId(), request.getCustomerId(), request.getQuantity());
+        // Find product is active
+        Product product = productRepository.findProductById(request.getProductId())
+                .orElseThrow(
+                        () -> new ResourcesNotFoundException("productID", String.valueOf(request.getProductId())));
 
+        // Find active basket
+        Basket basket = basketRepository.findByCustomerId(request.getCustomerId())
+                .orElseThrow(() ->
+                        new ResourcesNotFoundException("Basket isn't found for customer ID: " + request.getCustomerId()));
+
+        // Find active BasketItem
+        BasketItem item = basketItemRepository.findByBasketIdAndProductId(basket.getId(), request.getProductId())
+                .orElseThrow(() -> new ResourcesNotFoundException(String.valueOf(request.getProductId())));
+
+        // Calculate quantity to remove
+        int quantityToRemove = (request.getQuantity() < item.getQuantity())
+                ? request.getQuantity()
+                : item.getQuantity();
+
+        // Update BasketItem
+        if (request.getQuantity() < item.getQuantity()) {
+            item.setQuantity(item.getQuantity() - quantityToRemove);
+            log.info("Reduced quantity of product ID: {} in basket ID: {} by {}, new quantity: {}",
+                    request.getProductId(), basket.getId(), quantityToRemove, item.getQuantity());
+        } else {
+            item.setLogicalDeleteFlag((short) 0);
+            log.info("Removed product ID: {} from basket ID: {}", request.getProductId(), basket.getId());
+        }
+        basketItemRepository.save(item);
+
+        // Restore stock
+        productService.updateStock(product, quantityToRemove);
+
+        log.info("Removed {} units of product ID: {} from basket ID: {}", quantityToRemove, request.getProductId(), basket.getId());
+        return basket;
     }
 
     @Override
