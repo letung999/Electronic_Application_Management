@@ -2,18 +2,18 @@ package com.ecommerce.electronicapplicationmanagement.service;
 
 import com.ecommerce.electronicapplicationmanagement.dto.ReceiptDto;
 import com.ecommerce.electronicapplicationmanagement.entity.Basket;
+import com.ecommerce.electronicapplicationmanagement.request.AddBasketRequest;
 
 public interface BasketService {
     /**
+     * add to basket funtion
      *
-     * @param customerId
-     * @param productId
-     * @param quantity
+     * @param request add basket request
+     * @return the basket just have added
      */
-    void addToBasket(Long customerId, Long productId, int quantity);
+    Basket addToBasket(AddBasketRequest request);
 
     /**
-     *
      * @param customerId
      * @param productId
      * @param quantity
@@ -21,14 +21,12 @@ public interface BasketService {
     void removeFromBasket(Long customerId, Long productId, int quantity);
 
     /**
-     *
      * @param customerId
      * @return
      */
     ReceiptDto calculateReceipt(Long customerId);
 
     /**
-     *
      * @param customerId
      * @return
      */

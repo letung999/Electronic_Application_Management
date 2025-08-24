@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long>{
+public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE (:category IS NULL OR :category ='' OR p.category = :category) " +
             "AND (:name IS NULL OR p.name LIKE %:name%) " +
             "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
@@ -32,6 +32,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
             "AND p.logicalDeleteFlag = 0")
     Optional<Product> findProductByIdAndVersion(@Param("id") Long id,
                                                 @Param("version") Long version);
+
+    @Query("SELECT p FROM Product AS p WHERE p.id =:id " +
+            "AND p.logicalDeleteFlag = 0" +
+            "AND p.available = true")
+    Optional<Product> findProductById(@Param("id") Long id);
 
 
     @Query(value = "SELECT p FROM Product AS p WHERE p.id IN (:productIds) AND p.logicalDeleteFlag = 0")

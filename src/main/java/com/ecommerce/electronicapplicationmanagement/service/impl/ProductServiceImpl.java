@@ -9,6 +9,7 @@ import com.ecommerce.electronicapplicationmanagement.entity.Deal;
 import com.ecommerce.electronicapplicationmanagement.entity.Product;
 import com.ecommerce.electronicapplicationmanagement.exception.ConflictDataException;
 import com.ecommerce.electronicapplicationmanagement.exception.DateTimeInValidException;
+import com.ecommerce.electronicapplicationmanagement.exception.InsufficientStockException;
 import com.ecommerce.electronicapplicationmanagement.exception.ResourcesNotFoundException;
 import com.ecommerce.electronicapplicationmanagement.repository.BasketItemRepository;
 import com.ecommerce.electronicapplicationmanagement.repository.DealRepository;
@@ -25,6 +26,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.TransactionException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.orm.jpa.JpaOptimisticLockingFailureException;
@@ -107,13 +109,28 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
+    @Retryable(value = {
+            OptimisticLockException.class,
+            StaleObjectStateException.class,
+            PersistenceException.class,
+            TransactionException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100))
     @Override
     public Product updateStock(Product product, int delta) {
         product.setStock(product.getStock() + delta);
         if (product.getStock() < 0) {
-            throw new RuntimeException("Insufficient stock");
+            throw new InsufficientStockException(product.getName());
         }
         return productRepository.save(product);
+    }
+
+    @Recover
+    public Product recover(org.springframework.orm.ObjectOptimisticLockingFailureException e,
+                              Product product, int delta) {
+        log.error("Recover triggered for ObjectOptimisticLockingFailureException. Product IDs: {}, Message: {}",
+                product.getName(), e.getMessage());
+        throw new ConflictDataException();
     }
 
     @Override
