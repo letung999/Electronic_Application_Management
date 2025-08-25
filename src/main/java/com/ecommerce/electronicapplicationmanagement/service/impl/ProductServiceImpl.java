@@ -28,7 +28,6 @@ import org.hibernate.StaleObjectStateException;
 import org.hibernate.TransactionException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.orm.jpa.JpaOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -56,34 +55,49 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(product);
     }
 
-    @Override
+    /**
+     * removeProductById
+     * @param id the id of product
+     * @return the product after removed
+     */
     @Transactional
-    @Retryable(value = JpaOptimisticLockingFailureException.class, maxAttempts = 3)
-    public Product removeProductById(Long id, Long version) {
-        try {
-            Optional<Product> productOptional = productRepository.findProductByIdAndVersion(id, version);
-            if (productOptional.isPresent()) {
-                Product product = productOptional.get();
-                product.setLogicalDeleteFlag(Constant.INVALID_FLAG);
+    @Retryable(value = {
+            OptimisticLockException.class,
+            StaleObjectStateException.class,
+            PersistenceException.class,
+            TransactionException.class},
+            maxAttempts = 2,
+            backoff = @Backoff(delay = 100))
+    @Override
+    public Product removeProductById(Long id) {
+        Optional<Product> productOptional = productRepository.findProductById(id);
+        if (productOptional.isPresent()) {
+            Product product = productOptional.get();
+            product.setLogicalDeleteFlag(Constant.INVALID_FLAG);
 
-                // delete the basket references
-                log.info("Start remove the basket references product with productId: {}", id);
-                basketItemRepository.deleteByProductId(id);
-                log.info("End remove the basket references product with productId: {}", id);
+            // delete the basket references
+            log.info("Start remove the basket references product with productId: {}", id);
+            basketItemRepository.deleteByProductId(id);
+            log.info("End remove the basket references product with productId: {}", id);
 
-                // delete the deal references
-                log.info("Start remove the deal references with productId: {}", id);
-                dealRepository.deleteByProductId(id);
-                log.info("End remove the deal references with productId: {}", id);
+            // delete the deal references
+            log.info("Start remove the deal references with productId: {}", id);
+            dealRepository.deleteByProductId(id);
+            log.info("End remove the deal references with productId: {}", id);
 
-                return productRepository.save(product);
-            } else {
-                log.info("Product has already deleted or isn't exist");
-                throw new ResourcesNotFoundException("productID", String.valueOf(id));
-            }
-        } catch (ConflictDataException e) {
-            throw new ConflictDataException();
+            return productRepository.save(product);
+        } else {
+            log.info("Product has already deleted or isn't exist");
+            throw new ResourcesNotFoundException("productID", String.valueOf(id));
         }
+    }
+
+    @Recover
+    public Product recover(org.springframework.orm.ObjectOptimisticLockingFailureException e,
+                           Long id) {
+        log.error("Recover triggered for ObjectOptimisticLockingFailureException. Product IDs: {}, Message: {}",
+                id, e.getMessage());
+        throw new ConflictDataException();
     }
 
     @Override

@@ -60,10 +60,9 @@ public class AdminController extends BaseController {
             description = "Data is conflict!",
             content = @Content(schema = @Schema(implementation = AddProductRequest.class))
     )
-    @DeleteMapping("/product/{id}/{version}")
-    public ResponseEntity<Response> removeProduct(@PathVariable Long id,
-                                                  @PathVariable Long version) {
-        var result = productService.removeProductById(id, version);
+    @DeleteMapping("/product/{id}")
+    public ResponseEntity<Response> removeProduct(@PathVariable Long id) {
+        var result = productService.removeProductById(id);
         return responseStatusOK(result);
     }
 

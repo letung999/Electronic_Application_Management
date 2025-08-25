@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface ProductService {
     Product initProduct(AddProductRequest addProductRequest);
 
-    Product removeProductById(Long id, Long version);
+    Product removeProductById(Long id);
 
     List<ProductDto> listFiltered(SearchProductRequest searchProductRequest, Pageable pageable);
 
