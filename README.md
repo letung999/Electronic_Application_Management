@@ -45,6 +45,13 @@
           <img alt="The follow of system" src="https://raw.githubusercontent.com/letung999/PPN/1d47a54690ac1c072e17632e50853f49237093eb/images/Screenshot%202025-08-24%20at%2023.27.32.png">
       </picture>
 
+# Sequence Diagram
+
+* removeProductById(Long id)
+  <picture><img src="https://github.com/letung999/PPN/blob/master/images/sequence_remove_Product_ID.png?raw=true">
+* addDeal(List<AddDealRequest> requests)
+  <picture><img src="https://github.com/letung999/PPN/blob/master/images/sequences_add_deal.png?raw=true">
+
 # To run Application
 
 - swagger host: `http://localhost:8082/swagger-ui/index.html#/`
