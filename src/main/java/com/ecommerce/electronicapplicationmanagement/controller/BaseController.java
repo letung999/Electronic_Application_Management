@@ -4,7 +4,10 @@ import com.ecommerce.electronicapplicationmanagement.response.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class BaseController {
+/**
+ * the abstract class BaseController to return the common data for rest api
+ */
+public abstract class BaseController {
     /**
      * Returns response status OK with data.
      *
