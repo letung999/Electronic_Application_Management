@@ -51,6 +51,9 @@
   <picture><img src="https://github.com/letung999/PPN/blob/master/images/sequence_remove_Product_ID.png?raw=true">
 * addDeal(List<AddDealRequest> requests)
   <picture><img src="https://github.com/letung999/PPN/blob/master/images/sequences_add_deal.png?raw=true">
+* calculateReceipt(Long customerId)
+  <picture><img src="https://github.com/letung999/PPN/blob/master/images/sequence_about_reciptCalculate.png?raw=true">
+
 
 # To run Application
 
