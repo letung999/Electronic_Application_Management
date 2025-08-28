@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class AddProductRequest extends BaseRequest {
     @NotBlank(message = "The name product is required")
-    @Size(min = 20, max = 255, message = "Product name must be between 3 and 50 characters")
+    @Size(min = 3, max = 255, message = "Product name must be between 3 and 255 characters")
     private String name;
 
     @NotBlank(message = "The category product is required")
