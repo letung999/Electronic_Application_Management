@@ -1,9 +1,13 @@
 package com.ecommerce.electronicapplicationmanagement.service;
 
 import com.ecommerce.electronicapplicationmanagement.dto.ReceiptDto;
+import com.ecommerce.electronicapplicationmanagement.mapper.ReceiptInfoDtoMapper;
 import com.ecommerce.electronicapplicationmanagement.entity.Basket;
 import com.ecommerce.electronicapplicationmanagement.request.AddBasketRequest;
 import com.ecommerce.electronicapplicationmanagement.request.RemoveProductFromBasket;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface BasketService {
     /**
@@ -28,4 +32,6 @@ public interface BasketService {
      * , item information, total amount after apply discount
      */
     ReceiptDto calculateReceipt(Long customerId);
+
+    List<ReceiptInfoDtoMapper> getInfoReceipt(Pageable pageable);
 }

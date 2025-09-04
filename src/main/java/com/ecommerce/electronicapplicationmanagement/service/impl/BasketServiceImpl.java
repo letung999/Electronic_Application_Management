@@ -4,6 +4,7 @@ import com.ecommerce.electronicapplicationmanagement.converter.BasketConverter;
 import com.ecommerce.electronicapplicationmanagement.converter.BasketItemConverter;
 import com.ecommerce.electronicapplicationmanagement.dto.BasketItemDto;
 import com.ecommerce.electronicapplicationmanagement.dto.ReceiptDto;
+import com.ecommerce.electronicapplicationmanagement.mapper.ReceiptInfoDtoMapper;
 import com.ecommerce.electronicapplicationmanagement.entity.Basket;
 import com.ecommerce.electronicapplicationmanagement.entity.BasketItem;
 import com.ecommerce.electronicapplicationmanagement.entity.Deal;
@@ -22,6 +23,8 @@ import com.ecommerce.electronicapplicationmanagement.service.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -80,6 +83,7 @@ public class BasketServiceImpl implements BasketService {
                     BasketItem newItem = BasketItemConverter.INSTANCE.fromBaseRequest(baseRequest);
                     newItem.setBasket(basket);
                     newItem.setProduct(product);
+                    newItem.setQuantity(0);
                     return newItem;
                 });
 
@@ -178,10 +182,21 @@ public class BasketServiceImpl implements BasketService {
                 .build();
     }
 
+    @Override
+    public List<ReceiptInfoDtoMapper> getInfoReceipt(Pageable pageable) {
+        log.info("get information about receipt for customer");
+        Page<ReceiptInfoDtoMapper> receiptDtoPage = basketItemRepository.getInfoReceipt(pageable);
+        if (receiptDtoPage.isEmpty()) {
+            throw new ResourcesNotFoundException();
+        }
+        return receiptDtoPage.getContent();
+    }
+
     /**
      * calculateProductInBasket
-     * @param product product
-     * @param quantity quantity
+     *
+     * @param product     product
+     * @param quantity    quantity
      * @param discountMap map of productId pair discount value
      * @return total of product after apply the discount
      */

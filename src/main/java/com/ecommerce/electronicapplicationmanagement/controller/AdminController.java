@@ -8,6 +8,7 @@ import com.ecommerce.electronicapplicationmanagement.request.AddDealRequest;
 import com.ecommerce.electronicapplicationmanagement.request.AddProductRequest;
 import com.ecommerce.electronicapplicationmanagement.request.SearchProductRequest;
 import com.ecommerce.electronicapplicationmanagement.response.Response;
+import com.ecommerce.electronicapplicationmanagement.service.BasketService;
 import com.ecommerce.electronicapplicationmanagement.service.ProductService;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,8 +16,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +30,8 @@ import java.util.List;
 @Tag(name = "AdminController")
 public class AdminController extends BaseController {
     private final ProductService productService;
+
+    private final BasketService basketService;
 
     @ApiResponse(
             responseCode = "201",
@@ -87,6 +92,23 @@ public class AdminController extends BaseController {
         return responseStatusOK(result);
     }
 
+    @ApiResponse(
+            responseCode = "200",
+            description = "Get Information Receipt successfully!",
+            content = @Content(schema = @Schema(implementation = Page.class))
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "System error!",
+            content = @Content(schema = @Schema(implementation = Page.class))
+    )
+    @PostMapping("receipt/info")
+    public ResponseEntity<Response> getInfoReceipt(@RequestParam(defaultValue = PagingConstant.PAGE_DEFAULT) @Validated Integer page,
+                                                   @RequestParam(defaultValue = PagingConstant.SIZE_DEFAULT) @Validated Integer size) {
+        PageRequest pageRequest = PageRequest.of(page - 1, size);
+        var result = basketService.getInfoReceipt(pageRequest);
+        return responseStatusOK(result);
+    }
 
     @ApiResponse(
             responseCode = "201",
