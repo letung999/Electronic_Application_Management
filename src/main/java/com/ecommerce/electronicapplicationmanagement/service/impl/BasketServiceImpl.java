@@ -1,5 +1,6 @@
 package com.ecommerce.electronicapplicationmanagement.service.impl;
 
+import com.ecommerce.electronicapplicationmanagement.constant.Constant;
 import com.ecommerce.electronicapplicationmanagement.converter.BasketConverter;
 import com.ecommerce.electronicapplicationmanagement.converter.BasketItemConverter;
 import com.ecommerce.electronicapplicationmanagement.dto.BasketItemDto;
@@ -157,12 +158,12 @@ public class BasketServiceImpl implements BasketService {
             // find deals for productIds
             var productIds = basketItemList.stream().map(x -> x.getProduct().getId()).toList();
             List<Deal> deals = dealRepository.findByProductAndExpirationAfter(productIds, LocalDateTime.now());
-            Map<Long, BigDecimal> discountMap = new HashMap<>();
+            Map<String, BigDecimal> discountMap = new HashMap<>();
 
             if (!deals.isEmpty()) {
                 discountMap = deals.stream()
                         .collect(Collectors.toMap(
-                                deal -> deal.getProduct().getId(),
+                                this::buildDealKey,
                                 Deal::getDiscountValue));
             }
             for (BasketItem basketItem : basketItemList) {
@@ -200,16 +201,45 @@ public class BasketServiceImpl implements BasketService {
      * @param discountMap map of productId pair discount value
      * @return total of product after apply the discount
      */
-    private BigDecimal calculateProductInBasket(Product product, Integer quantity, Map<Long, BigDecimal> discountMap) {
+    private BigDecimal calculateProductInBasket(Product product, Integer quantity, Map<String, BigDecimal> discountMap) {
         BigDecimal totalDiscountOfProduct = BigDecimal.ZERO;
         if (!discountMap.isEmpty()) {
             totalDiscountOfProduct = discountMap.entrySet().stream()
-                    .filter(x -> x.getKey().equals(product.getId()))
+                    .filter(x -> extractKeyProduct(x.getKey()).equals(product.getId()))
                     .map(Map.Entry::getValue)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
         return product.getPrice()
                 .multiply(BigDecimal.valueOf(quantity))
                 .subtract(totalDiscountOfProduct);
+    }
+
+    /**
+     * buildDealKey
+     *
+     * @param deal deal
+     * @return the unique key
+     */
+    private String buildDealKey(Deal deal) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(deal.getProduct().getId())
+                .append(Constant.HYPHEN)
+                .append(deal.getDealType());
+        return sb.toString();
+    }
+
+    /**
+     * extractKeyProduct
+     *
+     * @param key key
+     * @return split the key at the hyphen and get first position
+     */
+    private Long extractKeyProduct(String key) {
+        String productId = "0";
+        if (!key.isEmpty()) {
+            String[] keys = key.split(Constant.HYPHEN);
+            productId = keys[0];
+        }
+        return Long.valueOf(productId);
     }
 }
